@@ -1,80 +1,57 @@
 resource "aws_ecs_cluster" "cluster" {
-
-name="ecs-cluster"
-
-}
-resource "aws_ecs_service" "service" {
-
-name="nginx"
-
-cluster=
-aws_ecs_cluster.cluster.id
-
-task_definition=
-aws_ecs_task_definition.task.arn
-
-desired_count=1
-
-launch_type="FARGATE"
-
-network_configuration {
-
-subnets=[
-
-var.subnet1,
-var.subnet2
-
-]
-
-security_groups=[
-
-var.sg
-
-]
-
-assign_public_ip=true
-
+  name = "ecs-cluster"
 }
 
-}
 resource "aws_ecs_task_definition" "task" {
 
-family="nginx"
+  family                   = "nginx"
+  requires_compatibilities = ["FARGATE"]
 
-requires_compatibilities=[
-"FARGATE"
-]
+  network_mode = "awsvpc"
 
-network_mode="awsvpc"
+  cpu    = "256"
+  memory = "512"
 
-cpu="256"
+  execution_role_arn = "arn:aws:iam::496097747127:role/ecsTaskExecutionRole"
 
-memory="512"
+  container_definitions = jsonencode([
+    {
+      name      = "nginx"
+      image     = "${aws_ecr_repository.repo.repository_url}:latest"
+      essential = true
 
-execution_role_arn=
-"arn:aws:iam::<ACCOUNT_ID>:role/ecsTaskExecutionRole"
-
-container_definitions=jsonencode([
-
-{
-
-name="nginx"
-
-image=
-"${aws_ecr_repository.repo.repository_url}:latest"
-
-essential=true
-
-portMappings=[
-
-{
-containerPort=80
+      portMappings = [
+        {
+          containerPort = 80
+        }
+      ]
+    }
+  ])
 }
 
-]
+resource "aws_ecs_service" "service" {
 
-}
+  name = "nginx"
 
-])
+  cluster = aws_ecs_cluster.cluster.id
 
+  task_definition = aws_ecs_task_definition.task.arn
+
+  desired_count = 1
+
+  launch_type = "FARGATE"
+
+  network_configuration {
+
+    subnets = [
+      var.subnet1,
+      var.subnet2
+    ]
+
+    security_groups = [
+      var.sg
+    ]
+
+    assign_public_ip = true
+  }
 }
