@@ -2,6 +2,7 @@ resource "aws_ecs_cluster" "cluster" {
   name = "ecs-cluster"
 }
 
+
 resource "aws_ecs_task_definition" "task" {
 
   family                   = "nginx"
@@ -16,13 +17,17 @@ resource "aws_ecs_task_definition" "task" {
 
   container_definitions = jsonencode([
     {
-      name      = "nginx"
-      image     = "${aws_ecr_repository.repo.repository_url}:latest"
+      name = "nginx"
+
+      image = "${data.aws_ecr_repository.repo.repository_url}:latest"
+
       essential = true
 
       portMappings = [
         {
           containerPort = 80
+          hostPort      = 80
+          protocol      = "tcp"
         }
       ]
     }
@@ -31,7 +36,7 @@ resource "aws_ecs_task_definition" "task" {
 
 resource "aws_ecs_service" "service" {
 
-  name = "nginx"
+  name = "nginx-service"
 
   cluster = aws_ecs_cluster.cluster.id
 

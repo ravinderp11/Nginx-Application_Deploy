@@ -1,5 +1,3 @@
-resource "aws_ecr_repository" "repo" {
-
+data "aws_ecr_repository" "repo" {
   name = "nginx-demo"
-
 }
