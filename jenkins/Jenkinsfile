@@ -8,7 +8,7 @@ stage('Git') {
 
 steps {
 
-git 'YOUR_GITHUB_REPO'
+git https://github.com/ravinderp11/Nginx-Application_Deploy.git
 
 }
 
