@@ -4,11 +4,11 @@ agent any
 
 stages {
 
-stage('Git') {
+stage('Checkout') {
 
 steps {
 
-git https://github.com/ravinderp11/Nginx-Application_Deploy.git
+checkout scm
 
 }
 
@@ -17,6 +17,8 @@ git https://github.com/ravinderp11/Nginx-Application_Deploy.git
 stage('Docker') {
 
 steps {
+
+sh 'chmod +x scripts/build.sh'
 
 sh './scripts/build.sh'
 
@@ -27,6 +29,8 @@ sh './scripts/build.sh'
 stage('Terraform') {
 
 steps {
+
+sh 'chmod +x scripts/deploy.sh'
 
 sh './scripts/deploy.sh'
 
